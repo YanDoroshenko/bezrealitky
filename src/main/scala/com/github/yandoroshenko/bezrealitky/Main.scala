@@ -3,6 +3,7 @@ package com.github.yandoroshenko.bezrealitky
 import java.io.{File, FileNotFoundException, FileWriter}
 
 import com.typesafe.config.ConfigFactory
+import com.typesafe.scalalogging.Logger
 import net.ruippeixotog.scalascraper.browser.JsoupBrowser
 import net.ruippeixotog.scalascraper.dsl.DSL.Extract._
 import net.ruippeixotog.scalascraper.dsl.DSL._
@@ -16,6 +17,9 @@ import scala.util.{Failure, Try}
   * Created by Yan Doroshenko (yandoroshenko@protonmail.com) on 31.05.2018.
   */
 object Main extends App {
+
+  /** Create logger **/
+  private val log = Logger(getClass())
 
   /** Configure file locations **/
   lazy val oldFileName = ConfigFactory.load().getString("files.old")
@@ -35,6 +39,7 @@ object Main extends App {
   Try(Source.fromFile(oldFileName)) // Try to open the old file
     .recover {
     case _: FileNotFoundException => //Create a new one if failed
+      log.warn(s"File $oldFileName not found, attempting to create")
       new File(oldFileName).createNewFile()
       Source.fromFile(oldFileName)
   }
@@ -59,8 +64,8 @@ object Main extends App {
         fw.close()
       }
     }) match {
-    case Failure(e) => println(e.getStackTrace().mkString("\n"))
-    case _ => println("Done")
+    case Failure(e) => log.error(e.getLocalizedMessage(), e)
+    case _ => log.info("Done")
   }
 
   /** Recurse through pages until found duplicates (duplicate means that we're back to page 1) **/
