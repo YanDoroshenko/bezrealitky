@@ -60,7 +60,7 @@ object Main extends App {
         val newFile = new File(newFileName)
         newFile.createNewFile()
         val fw = new FileWriter(newFile) // Write them to the new file
-        fw.write(n.mkString("\n"))
+        fw.write(n.mkString("", "\n", "\n"))
         fw.close()
       }
     }) match {
